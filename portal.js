@@ -135,12 +135,26 @@
 
   function statusNote() {
     if (!data.me) return `<p class="note">We don't have a volunteer form from <b>${esc(data.email)}</b> yet. <a href="volunteer.html">Fill out the volunteer form</a> and a resident will be in touch. Meanwhile you can sign up for anything open to everyone.</p>`;
+    if (data.me.status === "Not approved") return `<p class="note">You can sign up for anything on the calendar that's open to everyone. For other ways to get involved, reach out to <a href="mailto:${esc(data.staff || C.EMAIL)}">${esc(data.staff || C.EMAIL)}</a>.</p>`;
     if (!data.me.active) return `<p class="note">Thanks for signing up! Once a resident approves you, you'll be able to join the chore chart and volunteers-only shifts. Meanwhile you can sign up for anything open to everyone.</p>`;
     if (!data.me.bgCleared) return `<p class="note">One step left: your background check (a one-time thing, and Heirloom covers it). Once it clears, the chore chart and volunteers-only shifts open up. Meanwhile you can sign up for anything open to everyone.</p>`;
     if (data.me.powerPending) return `<p class="note">You've been approved for power tools &amp; the woodshop. <a href="profile.html">Read and accept the safety agreement</a> on your Profile before your first shift.</p>`;
     return "";
   }
   const needText = miss => miss.length ? `Needs ${miss.join(" and ")}` : "";
+  // Which emails this volunteer gets. Everything still shows here in the portal either way.
+  const prefsHtml = () => !data.prefs ? "" : `<section class="prefs" aria-label="Email choices"><h3>Emails</h3>
+      <p>Choose what we email you about. Either way, it all shows up here when you sign in.</p>
+      <label><input type="checkbox" data-pref="cover"${data.prefs.cover ? " checked" : ""}> Email me when someone needs a shift covered</label>
+      <label><input type="checkbox" data-pref="open"${data.prefs.open ? " checked" : ""}> Email me when a regular chore slot opens up</label>
+      <p class="small">Confirmations and reminders for your own shifts are always emailed (reminders have their own switch on each shift).</p></section>`;
+  document.addEventListener("change", async e => {
+    const el = e.target; if (!el || !el.dataset || !el.dataset.pref) return;
+    el.disabled = true;
+    try { const r = await call({ action: "volPrefs", [el.dataset.pref]: el.checked }); if (r && r.prefs) data.prefs = r.prefs; flash(el.checked ? "Okay, we'll email you about those." : "Okay, no emails for those. You'll still see them here."); }
+    catch (err) { el.checked = !el.checked; showErr((err.message || "Something went wrong") + "."); }
+    el.disabled = false;
+  });
   // Shifts someone isn't trained for still show, greyed out, with a way to ask for the training
   const needs = (miss, training) => {
     const t = training && miss.includes(training + " training") ? training : "";
@@ -244,7 +258,7 @@
       const slots = ch.filter(c => c.day === d);
       return `<section class="dcol" aria-label="${d}"><h3>${d}</h3>${slots.length ? slots.map(c => {
         const i = ch.indexOf(c);
-        const who = c.mine ? `<span class="who">You</span>` : c.open ? `<span class="who open">Open</span>` : `<span class="who">${esc(c.who)}</span>`;
+        const who = c.mine ? `<span class="who">You</span>` : c.open ? `<span class="who open">Needs a new regular</span>` : `<span class="who">${esc(c.who || "Covered")}</span>`;
         const canTake = (c.open || c.pool) && !c.missing.length;
         const act = c.mine ? `<button class="btn btn-outline btn-sm" data-cover="${i}">I need coverage</button>${remBtn(!!c.reminders, `data-rem-slot="${esc(c.id)}"`)}<button class="btn-quiet" data-drop="${i}" style="justify-self:start;padding:2px 0">Give up this slot</button>`
           : c.open ? (c.missing.length ? needs(c.missing, c.training) : `<button class="btn btn-primary btn-sm" data-claim="${i}">Take this slot</button>`)
@@ -253,6 +267,7 @@
           ${c.training ? `<span class="tag plain">${esc(c.training)}</span>` : ""}${who}${act}</div>`;
       }).join("") : `<p class="empty-day">No slots</p>`}</section>`;
     }).join("")}</div>`;
+    html += prefsHtml();
     app.innerHTML = html;
     wireRem(app);
     app.querySelectorAll("[data-claim]").forEach(b => b.onclick = () => { const c = ch[+b.dataset.claim];
@@ -268,15 +283,16 @@
   function renderCoverage() {
     const open = data.coverage, mine = data.myRequests;
     let html = statusNote() + `<div class="panel-h"><div><h2>Coverage</h2><p>Dates other volunteers need covered. Only volunteers see these. Thank you for stepping in!</p></div></div>`;
-    if (!open.length) html += `<div class="empty"><h2>Nothing needs covering</h2><p>When someone needs a date covered, it shows up here and we'll email you.</p></div>`;
+    if (!open.length) html += `<div class="empty"><h2>Nothing needs covering</h2><p>When someone needs a date covered, it shows up here${data.prefs && !data.prefs.cover ? "" : ", and we'll email you"}.</p></div>`;
     else html += `<div class="list">${open.map((r, i) => `<article class="item noimg${r.missing.length ? " locked" : ""}"><div><h3>${esc(r.chore)}</h3>
-      <p class="when">${esc(dayName(r.date))} · ${esc(r.time)}</p><div class="tags"><span class="tag warn">${r.pool ? "Needs someone" : esc(r.by) + " needs coverage"}</span></div>
+      <p class="when">${esc(dayName(r.date))} · ${esc(r.time)}</p><div class="tags"><span class="tag warn">${r.pool ? "Needs someone" : r.by ? esc(r.by) + " needs coverage" : "Needs coverage"}</span></div>
       ${r.note ? `<p class="desc">“${esc(r.note)}”</p>` : ""}
       <div class="acts">${r.missing.length ? needs(r.missing, r.training) : `<button class="btn btn-primary btn-sm" data-take="${i}">I can cover</button>`}</div></div></article>`).join("")}</div>`;
     if (mine.length) html += `<h3 class="day-h" style="margin-top:28px">Your requests</h3><div class="list">${mine.map((r, i) => `<article class="item noimg"><div><h3>${esc(r.chore)}</h3>
       <p class="when">${esc(dayName(r.date))} · ${esc(r.time)}</p>
-      <div class="tags">${r.status === "Covered" ? `<span class="tag mine">Covered by ${esc(r.coveredBy)}</span>` : `<span class="tag warn">Still open</span>`}</div>
+      <div class="tags">${r.status === "Covered" ? `<span class="tag mine">${r.coveredBy ? "Covered by " + esc(r.coveredBy) : "Covered"}</span>` : `<span class="tag warn">Still open</span>`}</div>
       ${r.status === "Open" ? `<div class="acts"><button class="btn-quiet" data-unreq="${i}">I can make it after all</button></div>` : ""}</div></article>`).join("")}</div>`;
+    html += prefsHtml();
     app.innerHTML = html;
     app.querySelectorAll("[data-take]").forEach(b => b.onclick = () => { const r = open[+b.dataset.take];
       confirmDlg(`Cover ${shortDay(r.date)}?`, r.pool ? `${r.chore}, ${r.time}. Thank you for pitching in!` : `${r.chore}, ${r.time}, for ${r.by}. We'll let them know.`, "I'll cover it",
@@ -353,7 +369,7 @@
   /* ---------- Preview mode: sample data ---------- */
   const dIn = n => { const d = new Date(Date.now() + n * 86400000); return H.dayKey(d); };
   const nextDow = (dow, extra) => { const d = new Date(); const add = ((dow - d.getDay() + 7) % 7) || 7; return dIn(add + (extra || 0)); };
-  const demoData = {
+  const demoData = { prefs: { cover: true, open: true }, showNames: false, staff: "staff@heirloomeastbay.com",
     ok: true, email: "ana@example.com", admin: false, hasEvents: true, form: "volunteer.html",
     me: { name: "Ana Diaz", first: "Ana", status: "Active volunteer", active: true, bgCleared: true, trainings: ["Animal chores", "Goat milking"] },
     opps: [
@@ -377,6 +393,7 @@
   async function demo(b) {
     await new Promise(r => setTimeout(r, 300));
     if (b.action === "volPortal") return JSON.parse(JSON.stringify(demoData));
+    if (b.action === "volPrefs") { demoData.prefs = Object.assign({ cover: true, open: true }, demoData.prefs, b.cover !== undefined ? { cover: b.cover } : {}, b.open !== undefined ? { open: b.open } : {}); return { ok: true, prefs: demoData.prefs }; }
     if (b.action === "volLearn") { demoData.asked = (demoData.asked || []).concat(b.training); return { ok: true, asked: demoData.asked }; }
     if (b.action === "volReminder") { demoData.chores.forEach(c => { if (c.id === b.slotId) c.reminders = b.on; }); demoData.myCovers.forEach(r => { if (r.id === b.coverId) r.reminder = b.on; }); }
     return { ok: true };

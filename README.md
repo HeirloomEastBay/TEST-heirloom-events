@@ -345,3 +345,16 @@ Volunteer (the usual steps), Church family, Community partner, Post events witho
 - The first time `setup()` runs with this version it renames the old trainings (Animal chores → Animal feeding +
   Collecting eggs, Garden tools → Gardening, Power tools → Power tools & woodshop) everywhere, and adds the residents
   and first partners to the People tab. It only does each of those once.
+
+### Round 2 (Nov 16b)
+
+- **Welcome popup** appears right after the sign-in code. **Power tools agreement** pops up at the next sign-in after an
+  admin ticks that training (community members only; residents don't need it).
+- **Sign out** is in the top menu. **People** is the last tab on the Admin page.
+- **Profile:** last name required; address is Street / City / State / Zip; emergency contact is name + phone.
+- **Residents' birthdays** go on the residents' calendar as a yearly "🎂 Name's birthday" (month and day only). Each
+  resident can untick it on their Profile; the Settings line "Show residents' birthdays on the residents' calendar" turns it off for everyone.
+- **Chore chart privacy:** community members see "Covered" or "Needs a new regular", never names. Residents and admins see names.
+- **Volunteer emails:** volunteers can turn off coverage-request and open-slot emails in the portal (bottom of Chore chart / Coverage).
+- **Stages:** New → Contacted → Background check sent → Active volunteer, then Not approved / Not right now. Background check can be Failed, with an admin-only note.
+- **Settings added:** "Training requests go to" (staff@) and "Owner email (app help, new partner requests)" (community@).

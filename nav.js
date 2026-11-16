@@ -18,7 +18,15 @@
       const on = here === href.split("?")[0];
       const text = short ? `<span class="l-long">${label}</span><span class="l-short">${short}</span>` : label;
       return `<a class="nav-link${on ? " on" : ""}" href="${href}"${on ? ' aria-current="page"' : ""}${short ? ` aria-label="${label}"` : ""}>${text}</a>`;
-    }).join("") + `<a class="btn btn-outline btn-sm nav-cal" href="index.html">See the calendar</a>`;
+    }).join("") + (signed ? `<a class="nav-link" id="navOut" href="index.html">Sign out</a>` : "")
+      + `<a class="btn btn-outline btn-sm nav-cal" href="index.html">See the calendar</a>`;
+    const out = document.getElementById("navOut");
+    if (out) out.onclick = e => {
+      e.preventDefault();
+      ["heirloom-session", "heirloom-roles", "heirloom-me", "heirloom-welcomed"].forEach(k => { try { localStorage.removeItem(k); } catch (e) { /* fine */ } });
+      try { sessionStorage.removeItem("heirloom-checked"); } catch (e) { /* fine */ }
+      location.href = "index.html";
+    };
   }
   draw();
 

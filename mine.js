@@ -74,6 +74,7 @@
         store.set(KEY, { token: r.token, email: r.email });
         if (window.HLNav) HLNav.setRoles({ email: r.email });
         load();
+        if (window.HLProfile) HLProfile.maybeWelcome(true); // first sign-in: the Welcome questions, straight away
       } catch (err) { showErr((err.message || "Something went wrong") + "."); unbusy($("#go"), "Sign in"); input.select(); }
     };
     $("#resend").onclick = async () => {

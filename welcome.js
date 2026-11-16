@@ -19,6 +19,7 @@
   .hp-form label.f input:disabled { background: var(--cream); color: var(--ink-soft); }
   .hp-form .opt { font-weight: 400; color: var(--muted); }
   .hp-form .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .hp-form .three { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px; }
   @media (max-width: 480px) { .hp-form .two { grid-template-columns: 1fr; } }
   .hp-form .chk { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; font-size: 15.5px; }
   .hp-form .chk input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--forest); flex: none; }
@@ -56,13 +57,20 @@
       : `<label class="chk"><input type="checkbox" data-p="volunteer"><span><b>I'd like to volunteer on the farm</b>
           <small>Someone from Heirloom will reach out. Regular volunteers do a one-time background check (we cover it), then get trained on each kind of chore, like animal feeding or gardening. Drop-in workdays on the calendar are open to everyone, no sign-up needed.</small></span></label>`;
     return `<div class="hp-form">
-      <div class="two">${f("first", "First name", r.first, { req: true, max: 60, ac: "given-name" })}${f("last", "Last name", r.last, { max: 60, ac: "family-name" })}</div>
+      <div class="two">${f("first", "First name", r.first, { req: true, max: 60, ac: "given-name" })}${f("last", "Last name", r.last, { req: true, max: 60, ac: "family-name" })}</div>
       <div class="two">${f("preferred", "Preferred name", r.preferred, { max: 60, ph: "What should we call you?" })}${f("pronouns", "Pronouns", r.pronouns, { max: 40, list: "hp-pronouns", ph: "she/her, he/him, they/them…" })}</div>
       <datalist id="hp-pronouns"><option value="she/her"><option value="he/him"><option value="they/them"><option value="she/they"><option value="he/they"></datalist>
       <label class="f"><span>Email</span><input type="email" value="${esc(r.email)}" disabled></label>
       <div class="two">${f("phone", "Phone", r.phone, { type: "tel", max: 40, ac: "tel" })}${f("birthday", "Birthday", r.birthday, { type: "date", max: 10 })}</div>
-      ${f("address", "Address", r.address, { max: 300, ac: "street-address" })}
-      ${f("emergency", "Emergency contact", r.emergency, { ph: "Name, relationship, phone" })}
+      ${resident ? `<label class="chk"><input type="checkbox" data-p="birthdayShow"${r.birthdayShow !== false ? " checked" : ""}><span>Show my birthday on the residents' calendar<small>Just the month and day, and only residents see that calendar.</small></span></label>` : ""}
+      <h3>Address <span class="opt">(optional)</span></h3>
+      <label class="f"><span>Street</span><input data-p="address" maxlength="300" autocomplete="address-line1" value="${esc(r.address || "")}"></label>
+      <div class="three"><label class="f"><span>City</span><input data-p="city" maxlength="80" autocomplete="address-level2" value="${esc(r.city || "")}"></label>
+        <label class="f"><span>State</span><input data-p="state" maxlength="30" autocomplete="address-level1" value="${esc(r.state || "")}"></label>
+        <label class="f"><span>Zip</span><input data-p="zip" maxlength="12" inputmode="numeric" autocomplete="postal-code" value="${esc(r.zip || "")}"></label></div>
+      <h3>Emergency contact <span class="opt">(optional)</span></h3>
+      <div class="two"><label class="f"><span>Their name</span><input data-p="emergency" maxlength="200" placeholder="Name and relationship" value="${esc(r.emergency || "")}"></label>
+        <label class="f"><span>Their phone</span><input data-p="emergencyPhone" type="tel" maxlength="40" value="${esc(r.emergencyPhone || "")}"></label></div>
       <h3>Food</h3>
       <div class="two">${f("dietary", "Dietary restrictions", r.dietary, { max: 300, ph: "Vegetarian, gluten-free…" })}${f("allergies", "Allergies", r.allergies, { max: 300, ph: "Nuts, shellfish…" })}</div>
       <h3>What are you interested in at the farm?</h3>
@@ -72,22 +80,25 @@
         <small>You'll see the Supper Church sign-ups (who's bringing what on Sundays) and notes from Pastor Brit. You don't need to be an official member, and you can turn this off any time.</small></span></label>`}
       <label class="f"><span>Anything else you'd like us to know? <span class="opt">(optional)</span></span><textarea data-p="about" maxlength="2000">${esc(r.about || "")}</textarea></label>
       <label class="chk"><input type="checkbox" data-p="news"${r.news ? " checked" : ""}><span>Send me Heirloom news &amp; updates</span></label>
-      <p class="lock">🔒 Your phone, address, emergency contact, birthday, pronouns, dietary needs and allergies are private. Only you and the Heirloom admin team can see them. (People cooking for Supper Church see a count like "2 vegetarian, 1 nut allergy", with no names.)</p>
+      <p class="lock">🔒 Your phone, address, emergency contact, birth year, pronouns, dietary needs and allergies are private. Only you and the Heirloom admin team can see them. (People cooking for Supper Church see a count like "2 vegetarian, 1 nut allergy", with no names.${resident ? " Your birthday's month and day show on the residents' calendar unless you turn that off above." : ""})</p>
     </div>`;
   }
   function collect(root) {
     const v = k => { const el = root.querySelector(`[data-p="${k}"]`); return el ? el.value : undefined; };
     const c = k => { const el = root.querySelector(`[data-p="${k}"]`); return el ? el.checked : undefined; };
     const b = { first: v("first"), last: v("last"), preferred: v("preferred"), pronouns: v("pronouns"), phone: v("phone"), birthday: v("birthday"), address: v("address"),
-      emergency: v("emergency"), dietary: v("dietary"), allergies: v("allergies"), about: v("about"), news: c("news"),
+      city: v("city"), state: v("state"), zip: v("zip"), emergency: v("emergency"), emergencyPhone: v("emergencyPhone"), dietary: v("dietary"), allergies: v("allergies"), about: v("about"), news: c("news"),
       interests: [...root.querySelectorAll('[data-p="interest"]:checked')].map(x => x.value) };
     if (c("church") !== undefined) b.church = c("church");
+    if (c("birthdayShow") !== undefined) b.birthdayShow = c("birthdayShow");
     if (c("volunteer")) b.volunteer = true;
     return b;
   }
   function check(root) {
     const first = root.querySelector('[data-p="first"]'), pref = root.querySelector('[data-p="preferred"]');
     if (!first.value.trim() && !pref.value.trim()) { first.focus(); return "Please add your first name."; }
+    const last = root.querySelector('[data-p="last"]');
+    if (!last.value.trim()) { last.focus(); return "Please add your last name."; }
     return "";
   }
 
@@ -106,12 +117,11 @@
     const name = r.greet || r.first || "";
     const d = dialog(`<form method="dialog" novalidate><div class="in">
         <h2>Welcome${name ? ", " + esc(name) : ""}!</h2>
-        <p>Tell us a little about you. Only a name is needed; fill in whatever else you like, and you can change any of it later on your Profile.</p>
+        <p>Tell us a little about you. Only your first and last name are needed; fill in whatever else you like, and you can change any of it later on your Profile.</p>
         ${fields(r)}
       </div><div class="bar"><span class="err" hidden></span><button type="button" class="btn btn-outline btn-sm" data-a="later">Not now</button><button type="button" class="btn btn-primary" data-a="save">Save</button></div></form>`);
     const err = d.querySelector(".err");
-    d.addEventListener("cancel", () => { try { sessionStorage.setItem("heirloom-welcome-later", "1"); } catch (e) { /* fine */ } });
-    d.querySelector('[data-a="later"]').onclick = () => { try { sessionStorage.setItem("heirloom-welcome-later", "1"); } catch (e) { /* fine */ } d.close(); };
+    d.querySelector('[data-a="later"]').onclick = () => d.close();
     d.querySelector('[data-a="save"]').onclick = async e => {
       const bad = check(d); err.hidden = !bad; err.textContent = bad; if (bad) return;
       const b = e.currentTarget; b.disabled = true; b.innerHTML = `<span class="spinner"></span> Saving…`;
@@ -119,6 +129,7 @@
         const res = await api(Object.assign({ action: "profileSave", done: true }, collect(d)));
         if (!res.ok) throw new Error(res.error || "Something went wrong");
         remember(res); d.close();
+        if (res.powerPending) powerDialog(res);
         if (window.HLNav) HLNav.setRoles({ email: res.email, admin: !!res.admin, volunteer: !!res.volunteer, resident: !!res.resident });
         document.dispatchEvent(new CustomEvent("heirloom-profile", { detail: res }));
       } catch (x) { err.textContent = (x.message || "Something went wrong") + "."; err.hidden = false; b.disabled = false; b.textContent = "Save"; }
@@ -130,17 +141,22 @@
       localStorage.setItem("heirloom-me", JSON.stringify({ email: r.email, name: ((r.preferred || r.first) + " " + r.last).trim(), first: r.greet || r.preferred || r.first, phone: r.phone }));
     } catch (e) { /* fine */ }
   }
-  // Called on every signed-in page. Asks the server once per device; after that it's remembered.
-  async function maybeWelcome() {
-    if (DEMO || /profile\.html$/i.test(location.pathname)) return;
+  // Called on every signed-in page, and right after someone signs in (fresh = true). It asks the
+  // server once per visit: first the Welcome questions, then (for someone newly approved for
+  // power tools) the safety agreement, before anything else.
+  async function maybeWelcome(fresh) {
+    if (DEMO || (!fresh && /profile\.html$/i.test(location.pathname))) return;
     const session = read("heirloom-session");
     if (!session || !session.token) return;
-    let later = false; try { later = localStorage.getItem("heirloom-welcomed") === session.email || sessionStorage.getItem("heirloom-welcome-later") === "1"; } catch (e) { /* fine */ }
-    if (later) return;
+    let seen = false; try { seen = sessionStorage.getItem("heirloom-checked") === session.email; } catch (e) { /* fine */ }
+    if (seen && fresh !== true) return;
     try {
       const r = await api({ action: "profileGet" });
       if (!r.ok) return;
-      if (r.done) remember(r); else welcome(r);
+      try { sessionStorage.setItem("heirloom-checked", session.email); } catch (e) { /* fine */ }
+      if (!r.done) return welcome(r);
+      remember(r);
+      if (r.powerPending) powerDialog(r, () => { if (/portal\.html|profile\.html/i.test(location.pathname)) location.reload(); });
     } catch (e) { /* try again next page */ }
   }
 
@@ -178,5 +194,5 @@
   }
 
   window.HLProfile = { fields: r => { addCss(); return fields(r); }, collect, check, powerDialog, maybeWelcome, remember };
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", maybeWelcome); else maybeWelcome();
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => maybeWelcome()); else maybeWelcome();
 })();

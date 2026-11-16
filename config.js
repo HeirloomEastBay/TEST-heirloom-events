@@ -3,6 +3,7 @@
    This is the only file you should need to edit day to day.
    ============================================================ */
 window.HEIRLOOM = {
+  // TEST COPY: this points at the TEST Sheet. Do not upload this file to the live site.
   // Paste the Apps Script web app URL here after you deploy it
   // (ends in /exec). Leave it empty to run the pages in demo mode
   // with sample events.
