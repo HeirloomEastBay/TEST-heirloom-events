@@ -130,7 +130,7 @@
         if (!res.ok) throw new Error(res.error || "Something went wrong");
         remember(res); d.close();
         if (res.powerPending) powerDialog(res);
-        if (window.HLNav) HLNav.setRoles({ email: res.email, admin: !!res.admin, volunteer: !!res.volunteer, resident: !!res.resident });
+        if (window.HLNav) HLNav.setRoles({ email: res.email, admin: !!res.admin, volunteer: !!res.volunteer, resident: !!res.resident, church: !!res.church });
         document.dispatchEvent(new CustomEvent("heirloom-profile", { detail: res }));
       } catch (x) { err.textContent = (x.message || "Something went wrong") + "."; err.hidden = false; b.disabled = false; b.textContent = "Save"; }
     };

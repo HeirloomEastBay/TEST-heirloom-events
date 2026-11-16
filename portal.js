@@ -53,7 +53,7 @@
   function header() {
     const me = data.me;
     $("#hello").textContent = me && me.first ? `Hi, ${me.first}!` : "Volunteer portal";
-    if (window.HLNav) HLNav.setRoles({ email: data.email, admin: !!data.admin, volunteer: !!data.me, resident: !!data.resident });
+    if (window.HLNav) HLNav.setRoles({ email: data.email, admin: !!data.admin, volunteer: !!data.me, resident: !!data.resident, church: !!data.church });
     $("#signOut").hidden = false;
     $("#signOut").onclick = () => { try { localStorage.removeItem("heirloom-session"); } catch (e) { /* fine */ } if (window.HLNav) HLNav.signedOut(); location.href = "index.html"; };
     const b = [];

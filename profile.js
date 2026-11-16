@@ -39,7 +39,7 @@
   }
 
   function render(r) {
-    if (window.HLNav) HLNav.setRoles({ email: r.email, admin: !!r.admin, volunteer: !!r.volunteer, resident: !!r.resident });
+    if (window.HLNav) HLNav.setRoles({ email: r.email, admin: !!r.admin, volunteer: !!r.volunteer, resident: !!r.resident, church: !!r.church });
     try { localStorage.setItem("heirloom-me", JSON.stringify({ email: r.email, name: (r.first + " " + r.last).trim(), phone: r.phone })); } catch (e) { /* fine */ }
     const s = r.stats;
     const hours = s && s.hours ? (s.hours === 1 ? "1" : String(s.hours)) : "0";
@@ -79,7 +79,7 @@
         <h2>Your access</h2>
         <ul class="access">${access.map(([t, on]) => `<li class="${on ? "" : "no"}">${esc(t)}</li>`).join("")}</ul>
         ${r.powerAccepted ? `<p class="lock">Power tools safety agreement accepted ${esc(String(r.powerAccepted).split(" · ")[0])}.</p>` : ""}
-        ${r.volunteer ? `<p><a class="btn btn-forest btn-sm" href="portal.html">Open the volunteer portal</a></p>` : ""}
+        <p style="display:flex;flex-wrap:wrap;gap:8px">${r.volunteer ? `<a class="btn btn-forest btn-sm" href="portal.html">Open the volunteer portal</a>` : ""}${r.church ? `<a class="btn btn-forest btn-sm" href="church.html">Open the church family page</a>` : ""}</p>
       </section>
       <p style="text-align:center"><button type="button" class="btn btn-outline btn-sm" id="out">Sign out</button></p>`;
     if ($("#agree")) $("#agree").onclick = () => HLProfile.powerDialog(r, res => { render(res); $("#ok").textContent = "Thank you! You're all set for power tools and the woodshop."; });

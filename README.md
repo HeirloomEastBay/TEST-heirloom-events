@@ -358,3 +358,25 @@ Volunteer (the usual steps), Church family, Community partner, Post events witho
 - **Volunteer emails:** volunteers can turn off coverage-request and open-slot emails in the portal (bottom of Chore chart / Coverage).
 - **Stages:** New → Contacted → Background check sent → Active volunteer, then Not approved / Not right now. Background check can be Failed, with an admin-only note.
 - **Settings added:** "Training requests go to" (staff@) and "Owner email (app help, new partner requests)" (community@).
+
+### Church family page (Nov 16c)
+
+`church.html` / `church.js`. For residents and anyone with "church family" on (people turn it on in their Profile, or an admin does on People).
+
+- **Supper Church:** the next 8 Sundays (the "Supper Church: Sundays to show" setting), skipping fifth Sundays
+  ("Supper Church: skip fifth Sundays"). Each has one main dish and an open list of sides, desserts and other things.
+  A Sunday with no main is highlighted. Sign-ups live on the **Supper Church** tab of the Sheet.
+- **Notes:** any admin can write one (bold, italics, lists, links), on its own or tied to a Sunday. They live on the **Church notes** tab.
+- **Dietary counts** come from church-family profiles, with no names.
+- **Discord:** add a row for `#church-fam` on the "Discord channels" tab (name + webhook URL, Active ticked). Then a new main
+  dish, a midweek nudge when Sunday has no main, a Saturday roundup, and notes (when the box is ticked) post there.
+  The channel name is the "Supper Church: Discord channel" setting. No row = nothing posts.
+- The "What is Supper Church?" words are at the top of `church.js` (`ABOUT`).
+
+### Church notes as a blog (Nov 16d)
+
+- The note editor is the same as the event form's "More details": bold, italics, headings, lists, quotes, links and up
+  to 6 photos per note (saved to the photo folder in Drive).
+- Each note can have **themes** and **scripture passages**. Passages link to BibleGateway.
+- Everyone in the church family can **search** notes by word and **filter** by theme or book of the Bible. Tapping a theme on a note filters to it.
+- The Church notes tab has three new columns (Format, Themes, Scripture); `setup()` adds them. Notes written before this still show.
