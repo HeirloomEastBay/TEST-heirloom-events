@@ -6,7 +6,7 @@ window.HEIRLOOM = {
   // Paste the Apps Script web app URL here after you deploy it
   // (ends in /exec). Leave it empty to run the pages in demo mode
   // with sample events.
-  API_URL: "https://script.google.com/macros/s/AKfycby5j_82DGsF5rJad93rbv_Y6q8dYVbWQe1IpNKI8Sew4GOk2qW3rlMGodP5qcbbtEz3/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycbwsgwCDTzHCZUcW0u6bLYTjpBcRkbZi7dRGK80U8jJHDd40wJhE04nuxFp0wW8RHbSkQw/exec",
 
   // The public Google Calendar (used for "Add to your calendar")
   PUBLIC_CALENDAR_ID:
