@@ -380,3 +380,12 @@ Volunteer (the usual steps), Church family, Community partner, Post events witho
 - Each note can have **themes** and **scripture passages**. Passages link to BibleGateway.
 - Everyone in the church family can **search** notes by word and **filter** by theme or book of the Bible. Tapping a theme on a note filters to it.
 - The Church notes tab has three new columns (Format, Themes, Scripture); `setup()` adds them. Notes written before this still show.
+
+### Add to Home Screen (Nov 16e)
+
+- `manifest.webmanifest`, `sw.js`, `install.js` and the `images/app-icon-*.png` files make the site installable: an icon
+  on the phone's home screen that opens full screen. All of them must be uploaded with the rest of the site.
+- Signed-in people on phones see a one-time prompt. Android gets an Install button; iPhones get the two steps
+  (Share, then Add to Home Screen). The Profile page has an "Add to Home Screen" button any time.
+- The app opens on `mine.html` (their signed-in page). When the home page exists, change `start_url` in the manifest.
+- The service worker saves nothing, so updates show up as usual.

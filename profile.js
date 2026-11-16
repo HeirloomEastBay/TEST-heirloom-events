@@ -81,7 +81,8 @@
         ${r.powerAccepted ? `<p class="lock">Power tools safety agreement accepted ${esc(String(r.powerAccepted).split(" · ")[0])}.</p>` : ""}
         <p style="display:flex;flex-wrap:wrap;gap:8px">${r.volunteer ? `<a class="btn btn-forest btn-sm" href="portal.html">Open the volunteer portal</a>` : ""}${r.church ? `<a class="btn btn-forest btn-sm" href="church.html">Open the church family page</a>` : ""}</p>
       </section>
-      <p style="text-align:center"><button type="button" class="btn btn-outline btn-sm" id="out">Sign out</button></p>`;
+      <p style="text-align:center;display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button type="button" class="btn btn-forest btn-sm" data-install hidden>Add to Home Screen</button><button type="button" class="btn btn-outline btn-sm" id="out">Sign out</button></p>`;
+    if (window.HLInstall) HLInstall.refresh();
     if ($("#agree")) $("#agree").onclick = () => HLProfile.powerDialog(r, res => { render(res); $("#ok").textContent = "Thank you! You're all set for power tools and the woodshop."; });
     const f = $("#pf");
     f.addEventListener("input", () => { $("#ok").textContent = ""; });
