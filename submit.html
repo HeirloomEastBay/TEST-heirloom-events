@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Submit an event · Heirloom Activities</title>
+<meta name="description" content="Add an event to the Heirloom calendar.">
+<link rel="icon" href="images/logo-badge.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=20261116a">
+<style>
+  .intro { background: var(--forest); color: #fff; padding: 44px 0 40px; position: relative; overflow: hidden; }
+  .intro .kicker { color: var(--sage); }
+  .intro h1 { font-size: clamp(36px, 5.6vw, 56px); margin: 8px 0 12px; }
+  .intro p { margin: 0; max-width: 36em; color: #e1e8dc; font-size: 17px; }
+  .intro .sprig { position: absolute; right: -40px; bottom: -70px; width: 360px; opacity: .14; pointer-events: none; }
+
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 32px; align-items: start; padding-top: 32px; }
+  @media (max-width: 960px) { .layout { grid-template-columns: 1fr; } .preview-col { order: 2; } }
+
+  fieldset { border: 0; margin: 0 0 18px; padding: 24px; background: var(--paper); border-radius: var(--radius); box-shadow: var(--shadow); min-width: 0; }
+  legend { float: left; width: 100%; padding: 0; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+  legend ~ * { clear: both; }
+  .step { width: 30px; height: 30px; border-radius: 50%; background: var(--sage-soft); color: var(--forest-deep); display: grid; place-items: center; font-family: var(--f-label); font-weight: 700; font-size: 13px; flex: none; }
+  legend h2 { font-size: 23px; }
+  @media (max-width: 520px) { fieldset { padding: 20px 16px; } }
+
+  .field { margin-bottom: 16px; }
+  .field:last-child { margin-bottom: 0; }
+  .field > label, .field .lbl { display: block; font-weight: 600; font-size: 15px; margin-bottom: 6px; }
+  .req { color: var(--barn); }
+  .hint { font-size: 13.5px; color: var(--muted); margin: 6px 0 0; }
+  input[type=text], input[type=email], input[type=tel], input[type=url], input[type=number], input[type=date], input[type=time], select, textarea {
+    width: 100%; min-height: 48px; padding: 11px 14px; background: #fff; border: 1.5px solid var(--line); border-radius: 10px; font-size: 16px; transition: border-color .15s, box-shadow .15s;
+  }
+  textarea { min-height: 120px; resize: vertical; line-height: 1.5; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--forest); box-shadow: 0 0 0 3px rgba(46,74,54,.15); }
+  .invalid input, .invalid textarea, .invalid select { border-color: var(--barn); }
+  .err { display: none; color: var(--barn); font-size: 13.5px; margin-top: 6px; font-weight: 600; }
+  .invalid .err { display: block; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .row3 { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 12px; }
+  @media (max-width: 560px) { .row3 { grid-template-columns: 1fr 1fr; } .row3 > :first-child { grid-column: 1 / -1; } }
+  @media (max-width: 420px) { .row { grid-template-columns: 1fr; } }
+
+  .opt { font-weight: 400; color: var(--muted); }
+  .type-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .type-chips label { position: relative; display: inline-flex; align-items: center; min-height: 40px; padding: 8px 16px; border: 1.5px solid var(--line); border-radius: 999px; background: #fff; cursor: pointer; font-weight: 600; font-size: 14.5px; }
+  .type-chips input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+  .type-chips label:has(input:checked) { border-color: var(--forest); background: var(--sage-soft); color: var(--forest-deep); }
+  .type-chips label:has(input:checked)::before { content: "✓"; margin-right: 6px; font-weight: 700; }
+  .type-chips label:has(input:focus-visible) { outline: 3px solid var(--wheat); outline-offset: 2px; }
+  .toggle { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 500; }
+  .toggle input { width: 20px; height: 20px; accent-color: var(--forest); }
+
+  /* Photo choices */
+  .rsvp-modes { margin-bottom: 0; }
+  .rsvp-modes .mode label { min-height: 58px; }
+  .photo-modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+  .mode { position: relative; }
+  .mode input { position: absolute; opacity: 0; inset: 0; }
+  .mode label { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; min-height: 92px; padding: 12px 8px; border: 1.5px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; font-weight: 600; font-size: 14px; line-height: 1.2; }
+  .mode label svg { width: 24px; height: 24px; color: var(--forest); }
+  .mode input:checked + label { border-color: var(--forest); background: var(--sage-soft); box-shadow: inset 0 0 0 1px var(--forest); }
+  .mode input:focus-visible + label { outline: 3px solid var(--wheat); outline-offset: 2px; }
+  .drop { border: 2px dashed var(--line); border-radius: 12px; padding: 22px; text-align: center; background: #fff; cursor: pointer; display: block; }
+  .drop:hover { border-color: var(--forest); }
+  .drop strong { color: var(--forest); }
+  .upload-preview { display: none; position: relative; border-radius: 12px; overflow: hidden; }
+  .upload-preview img { width: 100%; aspect-ratio: 16/10; object-fit: cover; }
+  .upload-preview button { position: absolute; top: 10px; right: 10px; }
+  .has-upload .upload-preview { display: block; }
+  .has-upload .drop { display: none; }
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; }
+  .g-item { position: relative; border-radius: 10px; overflow: hidden; aspect-ratio: 1; }
+  .g-item input { position: absolute; opacity: 0; }
+  .g-item label { display: block; height: 100%; cursor: pointer; }
+  .g-item img { width: 100%; height: 100%; object-fit: cover; }
+  .g-item span { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 8px 6px; background: linear-gradient(transparent, rgba(0,0,0,.65)); color: #fff; font-size: 12.5px; font-weight: 600; }
+  .g-item input:checked + label { outline: 4px solid var(--barn); outline-offset: -4px; }
+  .g-item input:checked + label::after { content: "✓"; position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; border-radius: 50%; background: var(--barn); color: #fff; display: grid; place-items: center; font-size: 14px; font-weight: 700; }
+  .g-item input:focus-visible + label { outline: 3px solid var(--wheat); outline-offset: -3px; }
+  [data-panel] { display: none; }
+  [data-panel].on { display: block; }
+
+  /* Calendar choice */
+  .cal-choice { display: grid; gap: 10px; }
+  .cal-opt { position: relative; }
+  .cal-opt input { position: absolute; top: 18px; left: 16px; width: 22px; height: 22px; accent-color: var(--forest); }
+  .cal-opt label { display: block; padding: 14px 16px 14px 50px; border: 1.5px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; }
+  .cal-opt input:checked + label { border-color: var(--forest); background: var(--sage-soft); }
+  .cal-opt strong { display: block; font-size: 16px; }
+  .cal-opt small { color: var(--ink-soft); font-size: 14px; }
+  .private-note { display: flex; gap: 10px; align-items: flex-start; background: #f3e5c4; color: #5a3f10; border-radius: 10px; padding: 12px 14px; font-size: 14px; margin-bottom: 16px; }
+  .private-note svg { width: 18px; height: 18px; flex: none; margin-top: 2px; }
+
+  /* Preview column */
+  .preview-col { position: sticky; top: 88px; }
+  .preview-col .label { color: var(--muted); display: block; margin-bottom: 10px; }
+  .preview-col .card { grid-template-columns: 1fr; }
+  .preview-col .card-media { min-height: 0; aspect-ratio: 16/10; }
+  .preview-col .card-body h4 { font-size: 22px; }
+  .preview-col .card-body h4.placeholder, .preview-col .desc.placeholder { color: #b3ab9b; }
+  .preview-col .card-actions .btn { pointer-events: none; }
+  @media (max-width: 960px) { .preview-col { position: static; } }
+
+  .submit-row { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+  .submit-row .btn { width: 100%; min-height: 54px; font-size: 16px; }
+  .form-error { display: none; background: #f7e1dd; color: var(--barn-dark); border-radius: 10px; padding: 12px 14px; font-weight: 600; font-size: 14.5px; }
+  .form-error.on { display: block; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .spinner { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* "More details" editor */
+  .rte { border: 1.5px solid var(--line); border-radius: 12px; background: #fff; overflow: hidden; }
+  .rte:focus-within { border-color: var(--forest); box-shadow: 0 0 0 3px rgba(46,74,54,.15); }
+  .rte-bar { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; border-bottom: 1px solid var(--line); background: #faf8f3; }
+  .rte-bar button { display: inline-flex; align-items: center; gap: 5px; min-width: 38px; min-height: 36px; padding: 4px 10px; border: 0; border-radius: 8px; background: transparent; color: var(--ink); font-size: 15px; font-weight: 600; cursor: pointer; }
+  .rte-bar button:hover, .rte-bar button[aria-pressed="true"] { background: var(--sage-soft); }
+  .rte-bar svg { width: 18px; height: 18px; }
+  .rte-link { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; border-bottom: 1px solid var(--line); background: #faf8f3; }
+  .rte-link input { flex: 1 1 200px; min-height: 40px !important; }
+  .rte-area { min-height: 140px; max-height: 520px; overflow-y: auto; padding: 12px 14px; outline: none; font-size: 16px; line-height: 1.55; }
+  .rte-area:empty::before { content: attr(data-placeholder); color: #a9a293; }
+  .rte-area img { max-width: 100%; height: auto; border-radius: 10px; margin: 8px 0; display: block; }
+  .rte-area h3 { font-family: var(--f-title); font-size: 20px; margin: 12px 0 4px; }
+  .rte-area p { margin: 0 0 8px; }
+  .rte-area ul, .rte-area ol { margin: 0 0 8px; padding-left: 22px; }
+  .rte-area a { color: var(--forest); }
+
+  .cost-amount { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .cost-amount .dollar { font-weight: 600; font-size: 18px; color: var(--ink-soft); }
+  .cost-amount input { width: 110px !important; min-width: 0; }
+  .cost-amount .per { color: var(--ink-soft); font-size: 15px; }
+
+  .save-photo { margin-top: 12px; align-items: flex-start; font-size: 15px; line-height: 1.4; }
+  .save-photo input { margin-top: 1px; flex: none; }
+
+
+  .yn { grid-template-columns: repeat(2, 1fr); }
+  .invalid #channels label { border-color: var(--barn); }
+
+  /* Editing */
+  .keep-photo { margin-bottom: 12px; position: relative; }
+  .keep-photo input { position: absolute; opacity: 0; }
+  .keep-photo label { display: flex; align-items: center; gap: 14px; padding: 10px; border: 1.5px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; }
+  .keep-photo img { width: 96px; height: 64px; object-fit: cover; border-radius: 8px; flex: none; }
+  .keep-photo input:checked + label { border-color: var(--forest); background: var(--sage-soft); box-shadow: inset 0 0 0 1px var(--forest); }
+  .keep-photo input:focus-visible + label { outline: 3px solid var(--wheat); outline-offset: 2px; }
+  .vol-box { margin-top: 6px; padding: 14px 16px; border: 1.5px dashed var(--line); border-radius: 14px; background: #fff; }
+  .vol-box:has(#volunteer:checked) { border-style: solid; border-color: var(--forest); background: var(--sage-soft); }
+  .vol-box > .toggle { align-items: flex-start; }
+  .vol-box > .toggle input { margin-top: 2px; }
+  #volFields { margin-top: 14px; }
+  #volFields select { width: 100%; min-height: 46px; padding: 9px 12px; border: 1.5px solid var(--line); border-radius: 10px; background: #fff; font: inherit; font-size: 15.5px; }
+  .multi-row { margin: 14px 0 4px; align-items: flex-start; }
+  .multi-row input { margin-top: 2px; }
+  .multi-panel { margin-top: 10px; display: grid; gap: 12px; }
+  .multi-list { display: flex; flex-wrap: wrap; gap: 8px; min-height: 0; }
+  .multi-list:empty::before { content: "No photos yet."; color: var(--muted); font-size: 14px; }
+  .m-thumb { position: relative; width: 104px; aspect-ratio: 4 / 3; border-radius: 10px; overflow: hidden; background: var(--sage-soft); }
+  .m-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .m-thumb .n { position: absolute; left: 6px; top: 6px; background: rgba(28,48,36,.85); color: #fff; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 1px 7px; }
+  .m-thumb .x { position: absolute; right: 4px; top: 4px; width: 26px; height: 26px; border-radius: 50%; border: 0; background: rgba(251,248,241,.95); color: var(--barn); font-size: 16px; line-height: 1; cursor: pointer; }
+  .multi-add { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .multi-gallery button { position: relative; border: 2px solid transparent; border-radius: 12px; padding: 0; background: none; cursor: pointer; overflow: hidden; text-align: left; }
+  .multi-gallery button img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
+  .multi-gallery button span { display: block; font-size: 13px; padding: 4px 6px; color: var(--ink-soft); }
+  .multi-gallery button[aria-pressed="true"] { border-color: var(--forest); box-shadow: 0 0 0 2px var(--forest); }
+  .multi-gallery button .n { position: absolute; left: 6px; top: 6px; background: var(--forest); color: #fff; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 1px 7px; }
+  .edit-note { background: #f3e5c4; color: #5a3f10; border-radius: 10px; padding: 12px 14px; font-size: 14.5px; margin: 0 0 18px; }
+  .cancel-area { border-top: 1px solid var(--line); margin-top: 10px; padding-top: 14px; text-align: center; }
+  .link-btn { background: none; border: 0; padding: 6px; color: var(--barn); font-weight: 600; text-decoration: underline; cursor: pointer; font-size: 15px; }
+  .cancel-confirm { background: #f7e1dd; border-radius: 12px; padding: 14px; text-align: left; }
+  .cancel-confirm p { margin: 0 0 10px; color: var(--barn-dark); font-size: 15px; }
+  .cancel-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .loading-card { max-width: 620px; margin: 40px auto 0; background: var(--paper); border-radius: 20px; box-shadow: var(--shadow); padding: 36px 28px; text-align: center; color: var(--ink-soft); }
+
+  /* Done screen */
+  .done { max-width: 620px; margin: 40px auto 0; background: var(--paper); border-radius: 20px; box-shadow: var(--shadow); padding: 40px 28px; text-align: center; }
+  .done .tick { width: 72px; height: 72px; border-radius: 50%; background: var(--sage-soft); color: var(--forest); display: grid; place-items: center; margin: 0 auto 18px; }
+  .done .tick svg { width: 36px; height: 36px; }
+  .done h2 { font-size: 34px; margin-bottom: 10px; }
+  .done p { color: var(--ink-soft); font-size: 17px; margin: 0 auto 24px; max-width: 30em; }
+  .done .btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+  <div class="demo-banner" id="demoBanner" hidden>Preview mode. Submissions won't be saved until the calendar is connected.</div>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="index.html" aria-label="Heirloom Activities">
+        <img class="badge" src="images/logo-badge.png" alt="">
+      </a>
+      <nav class="nav" aria-label="Main"><a class="btn btn-outline btn-sm nav-cal" href="index.html">See the calendar</a></nav>
+    </div>
+  </header>
+
+  <section class="intro">
+    <svg class="sprig" viewBox="380 190 400 250" fill="#fff" aria-hidden="true"><use href="images/logo-wordmark-white.svg#Layer_1-2"/></svg>
+    <div class="wrap">
+      <span class="kicker">Heirloom Activities</span>
+      <h1 id="pageTitle">Submit an event</h1>
+      <p id="pageIntro">Moonlight hike on Tuesday? Happy hour with the goats? Tell us what's happening and we'll put it on the calendar. Takes about two minutes.</p>
+    </div>
+  </section>
+
+  <main class="wrap">
+    <div id="formWrap">
+    <form id="eventForm" class="layout" novalidate>
+      <div class="form-col">
+
+        <fieldset>
+          <legend><span class="step">1</span><h2>What's happening?</h2></legend>
+          <div class="field">
+            <label for="host">Who's hosting?</label>
+            <select id="host" name="host">
+              <option value="">Heirloom (residents &amp; staff)</option>
+            </select>
+            <p class="hint" id="hostHint">Pick "Community member" if you're hosting as a neighbor or friend of Heirloom.</p>
+          </div>
+          <div class="field" id="hostNameField" hidden>
+            <label for="hostName">Name to show as the host <span class="opt">(optional)</span></label>
+            <input type="text" id="hostName" name="hostName" maxlength="60" placeholder="Jane Doe, or East Bay Knitting Circle">
+            <p class="hint">Shown on the event as "Hosted by …". Leave blank to just say "community member."</p>
+          </div>
+          <div class="field" data-f="title">
+            <label for="title">Event name <span class="req">*</span></label>
+            <input type="text" id="title" name="title" maxlength="90" placeholder="Happy hour with the goats" autocomplete="off" required>
+            <div class="err">Give your event a name.</div>
+          </div>
+          <div class="vol-box" id="volBox">
+            <label class="toggle"><input type="checkbox" id="volunteer" name="volunteer">
+              <span><b>This is a volunteer opportunity</b><br><span class="hint" style="margin:0">For trusted posters and admins. People sign up right on the calendar or in the volunteer portal.</span></span></label>
+            <div id="volFields" hidden>
+              <div class="row">
+                <div class="field">
+                  <label for="volArea">Area</label>
+                  <select id="volArea" name="volArea"></select>
+                </div>
+                <div class="field">
+                  <label for="volTraining">Needs training <span class="opt">(optional)</span></label>
+                  <select id="volTraining" name="volTraining"><option value="">No training needed</option></select>
+                </div>
+              </div>
+              <label class="toggle" style="margin:2px 0 14px" hidden><input type="checkbox" id="volBg" name="volBg"><span>Needs a background check</span></label>
+              <p class="hint" style="margin:2px 0 14px">Open to anyone = a drop-in, no account or background check needed. Approved volunteers only = people who've cleared their one-time background check.</p>
+              <div class="field" style="margin-bottom:0">
+                <span class="lbl">Who can sign up?</span>
+                <div class="cal-choice">
+                  <div class="cal-opt"><input type="radio" name="volWho" id="vw-anyone" value="anyone" checked><label for="vw-anyone">
+                    <strong>Anyone</strong><small>Shows on the public calendar. Great for workdays and open projects.</small></label></div>
+                  <div class="cal-opt"><input type="radio" name="volWho" id="vw-volunteers" value="volunteers"><label for="vw-volunteers">
+                    <strong>Approved volunteers only</strong><small>Only shows in volunteers' portals, not on the public calendar.</small></label></div>
+                </div>
+                <p class="hint">If it needs a background check or training, only volunteers who have it can sign up. Everyone else sees how to get involved.</p>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend><span class="step">2</span><h2>When?</h2></legend>
+          <div class="row3">
+            <div class="field" data-f="date">
+              <label for="date">Date <span class="req">*</span></label>
+              <input type="date" id="date" name="date" required>
+              <div class="err">Pick a date.</div>
+            </div>
+            <div class="field time-f" data-f="startTime">
+              <label for="startTime">Starts <span class="req">*</span></label>
+              <input type="time" id="startTime" name="startTime" step="900">
+              <div class="err">Add a start time.</div>
+            </div>
+            <div class="field time-f" data-f="endTime">
+              <label for="endTime">Ends</label>
+              <input type="time" id="endTime" name="endTime" step="900">
+              <div class="err">Should be after the start.</div>
+            </div>
+          </div>
+          <div class="field">
+            <label class="toggle"><input type="checkbox" id="allDay" name="allDay"> All-day event</label>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="repeat">Repeats?</label>
+              <select id="repeat" name="repeat">
+                <option value="none">Just once</option>
+                <option value="weekly">Every week</option>
+                <option value="biweekly">Every other week</option>
+                <option value="monthlyNth">Monthly</option>
+                <option value="monthlyDate">Monthly</option>
+              </select>
+            </div>
+            <div class="field" data-f="until" id="untilField" hidden>
+              <label for="until">Until <span class="req">*</span></label>
+              <input type="date" id="until" name="until">
+              <div class="err">Pick an end date after the first event.</div>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend><span class="step">3</span><h2>Where &amp; how</h2></legend>
+          <div class="field">
+            <span class="lbl">Where on the farm?</span>
+            <div class="type-chips" id="places" role="radiogroup" aria-label="Where on the farm"></div>
+            <div id="otherPlace" hidden style="margin-top:10px">
+              <label class="visually-hidden" for="location">Where is it?</label>
+              <input type="text" id="location" maxlength="120" placeholder="Type the place, or an address if it's off the farm">
+            </div>
+            <p class="hint">Skip it if it's just "at Heirloom." Tap again to unselect.</p>
+            <p class="venue-note" id="venueNote" hidden role="status"></p>
+          </div>
+          <div class="field" data-f="cost">
+            <span class="lbl">Cost</span>
+            <div class="type-chips" id="costChoices" role="radiogroup" aria-label="Cost">
+              <label><input type="radio" name="costType" id="c-free" value="free">Free</label>
+              <label><input type="radio" name="costType" id="c-donation" value="donation">Suggested donation</label>
+              <label><input type="radio" name="costType" id="c-materials" value="materials">Materials fee</label>
+              <label><input type="radio" name="costType" id="c-other" value="other">Other</label>
+            </div>
+            <div class="cost-amount" id="costAmountRow" hidden>
+              <span class="dollar" aria-hidden="true">$</span>
+              <input type="number" id="costAmount" min="0" step="1" inputmode="decimal" aria-label="Amount in dollars" placeholder="10">
+              <span class="per" id="costPer">suggested donation per person</span>
+            </div>
+            <div id="costOtherRow" hidden style="margin-top:10px">
+              <input type="text" id="costOther" maxlength="60" aria-label="Describe the cost" placeholder="e.g. $20 per family, or sliding scale $5–$25">
+            </div>
+            <div class="err" id="costErr">Add an amount.</div>
+            <p class="hint">Pick one if it applies. Tap again to unselect.</p>
+          </div>
+          <div class="field">
+            <span class="lbl">RSVPs</span>
+            <div class="photo-modes rsvp-modes" role="radiogroup" aria-label="RSVPs">
+              <div class="mode"><input type="radio" name="rsvpMode" id="r-none" value="none" checked><label for="r-none">Just show up</label></div>
+              <div class="mode"><input type="radio" name="rsvpMode" id="r-form" value="form"><label for="r-form">Collect RSVPs here</label></div>
+              <div class="mode"><input type="radio" name="rsvpMode" id="r-link" value="link"><label for="r-link">Use my own link</label></div>
+            </div>
+          </div>
+          <div data-rsvp="form" hidden>
+            <div class="field" data-f="spots">
+              <label for="spots">How many spots?</label>
+              <input type="number" id="spots" name="spots" min="1" max="2000" inputmode="numeric" placeholder="No limit" style="max-width:180px">
+              <p class="hint">Leave blank for no limit. If it fills up, people can join a waitlist and move in when someone cancels. You'll get an email for each sign-up, with a link to your guest list.</p>
+            </div>
+          </div>
+          <div data-rsvp="link" hidden>
+            <div class="row">
+              <div class="field" data-f="link">
+                <label for="link">Link <span class="req">*</span></label>
+                <input type="url" id="link" name="link" inputmode="url" placeholder="https://" maxlength="400">
+                <div class="err">Add a link that starts with https://</div>
+              </div>
+              <div class="field">
+                <label for="linkLabel">Button says</label>
+                <select id="linkLabel" name="linkLabel">
+                  <option>RSVP</option><option>Get tickets</option><option>Sign up</option><option>Learn more</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset id="imageStep">
+          <legend><span class="step">4</span><h2>Main image</h2></legend>
+          <div class="keep-photo" id="keepPhoto" hidden>
+            <input type="radio" name="imageMode" id="m-keep" value="keep">
+            <label for="m-keep"><img id="keepImg" alt=""><span><strong>Keep the current photo</strong><br><span class="hint">Or pick another option below</span></span></label>
+          </div>
+          <div class="photo-modes" role="radiogroup" aria-label="Main image">
+            <div class="mode"><input type="radio" name="imageMode" id="m-upload" value="upload"><label for="m-upload">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>My own photo</label></div>
+            <div class="mode"><input type="radio" name="imageMode" id="m-preset" value="preset"><label for="m-preset">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Pick one of ours</label></div>
+            <div class="mode"><input type="radio" name="imageMode" id="m-auto" value="auto" checked><label for="m-auto">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.6L18 9l-4.2 1.4L12 15l-1.8-4.6L6 9l4.2-1.4z"/><path d="M18 15l.9 2.1L21 18l-2.1.9L18 21l-.9-2.1L15 18l2.1-.9z"/></svg>Choose for me</label></div>
+          </div>
+
+          <label class="toggle multi-row" id="multiRow" hidden>
+            <input type="checkbox" id="multi">
+            <span><b>Use a different photo for each date.</b> Pick or upload a few and they'll take turns.</span>
+          </label>
+          <div class="multi-panel" id="multiPanel" hidden>
+            <div class="multi-list" id="multiList" aria-live="polite"></div>
+            <div class="multi-add">
+              <label class="btn btn-outline btn-sm" for="multiFiles">Upload photos</label>
+              <input type="file" id="multiFiles" accept="image/*" multiple class="visually-hidden">
+              <span class="hint" id="multiHint" style="margin:0">or tap photos below to add them. Up to 6, used in this order.</span>
+            </div>
+            <div class="gallery multi-gallery" id="multiGallery"></div>
+          </div>
+
+          <div data-panel="upload" id="uploadPanel">
+            <label class="drop" for="photo">
+              <strong>Tap to add a photo</strong><br><span class="hint">From your camera roll or camera. Wide photos look best.</span>
+            </label>
+            <input type="file" id="photo" accept="image/*" class="visually-hidden">
+            <div class="upload-preview"><img id="uploadImg" alt="Your photo"><button type="button" class="btn btn-light btn-sm" id="removePhoto">Remove</button></div>
+            <p class="hint" id="photoStatus"></p>
+            <label class="toggle save-photo" id="savePhotoRow" hidden>
+              <input type="checkbox" id="savePhoto" name="savePhoto">
+              <span>I'll host more events like this. Save my photo so it's used automatically next time.</span>
+            </label>
+          </div>
+          <div data-panel="preset"><div class="gallery" id="gallery"></div></div>
+          <div data-panel="auto" class="on"><p class="hint" style="margin:0">We'll pick a farm photo that matches your event name. You can see it in the preview.</p></div>
+        </fieldset>
+
+        <fieldset>
+          <legend><span class="step">5</span><h2>Tell people about it</h2></legend>
+          <div class="field" data-f="description">
+            <label for="description">Short description <span class="req">*</span></label>
+            <textarea id="description" name="description" maxlength="1500" placeholder="BYOB, we'll provide the goats. Wear shoes you don't mind getting muddy." required></textarea>
+            <div class="err">Add a short description.</div>
+            <p class="hint">A few sentences for the calendar: what to expect, what to bring, who it's for.</p>
+          </div>
+          <div class="field">
+            <span class="lbl" id="detailsLbl">More details <span class="opt">(optional)</span></span>
+            <p class="hint" style="margin:0 0 8px">Shows when people tap the event. Add headings, lists, links or more images, like a schedule or a flyer.</p>
+            <div class="rte">
+              <div class="rte-bar" role="toolbar" aria-label="Formatting">
+                <button type="button" data-cmd="bold" aria-label="Bold" title="Bold"><b>B</b></button>
+                <button type="button" data-cmd="italic" aria-label="Italic" title="Italic"><i>I</i></button>
+                <button type="button" data-cmd="heading" aria-label="Heading" title="Heading">H</button>
+                <button type="button" data-cmd="insertUnorderedList" aria-label="Bulleted list" title="Bulleted list">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.2" fill="currentColor"/><circle cx="4.5" cy="12" r="1.2" fill="currentColor"/><circle cx="4.5" cy="18" r="1.2" fill="currentColor"/></svg></button>
+                <button type="button" data-cmd="link" aria-label="Add a link" title="Add a link">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg> Link</button>
+                <button type="button" data-cmd="image" aria-label="Add an image" title="Add an image">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-8 8"/></svg> Image</button>
+              </div>
+              <div class="rte-link" id="rteLink" hidden>
+                <input type="url" id="rteLinkUrl" placeholder="https://" inputmode="url" aria-label="Link address">
+                <button type="button" class="btn btn-forest btn-sm" id="rteLinkAdd">Add link</button>
+                <button type="button" class="btn btn-outline btn-sm" id="rteLinkCancel">Cancel</button>
+              </div>
+              <div class="rte-area" id="details" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="detailsLbl" data-placeholder="Schedule, what to bring, parking, a flyer…"></div>
+            </div>
+            <input type="file" id="detailsPhoto" accept="image/*" class="visually-hidden">
+            <p class="hint" id="detailsStatus"></p>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend><span class="step">6</span><h2>Which calendar?</h2></legend>
+          <div class="field" data-f="calendars">
+            <div class="cal-choice">
+              <div class="cal-opt"><input type="checkbox" name="calendars" id="cal-public" value="public" checked><label for="cal-public">
+                <strong>Public calendar</strong><small>Shows on heirloomeastbay.com. Anyone can see it.</small></label></div>
+              <div class="cal-opt"><input type="checkbox" name="calendars" id="cal-private" value="private"><label for="cal-private">
+                <strong>Residents' calendar</strong><small>Heirloom's private community calendar.</small></label></div>
+            </div>
+            <div class="err">Pick at least one calendar.</div>
+            <p class="hint" id="volCalNote" hidden>Approved-volunteers-only opportunities don't go on the public calendar. They show in volunteers' portals, and you can add them to the residents' calendar too.</p>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend><span class="step">7</span><h2>About you</h2></legend>
+          <div class="private-note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+            <span>Only the Heirloom team sees this section. It never appears on the public calendar.</span>
+          </div>
+          <div class="row">
+            <div class="field" data-f="name">
+              <label for="name">Your name <span class="req">*</span></label>
+              <input type="text" id="name" name="name" autocomplete="name" maxlength="80" required>
+              <div class="err">Add your name.</div>
+            </div>
+            <div class="field" data-f="email">
+              <label for="email">Email <span class="req">*</span></label>
+              <input type="email" id="email" name="email" autocomplete="email" inputmode="email" maxlength="120" required>
+              <div class="err">Add an email we can reach you at.</div>
+            </div>
+          </div>
+          <div class="field">
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" name="phone" autocomplete="tel" maxlength="30">
+          </div>
+          <div class="field">
+            <label for="notes">Anything the team should know?</label>
+            <textarea id="notes" name="notes" maxlength="1000" placeholder="Expected headcount, setup needs, questions…" style="min-height:90px"></textarea>
+          </div>
+          <div class="hp" aria-hidden="true"><label for="website">Website</label><input type="text" id="website" name="website" tabindex="-1" autocomplete="off"></div>
+        </fieldset>
+
+        <fieldset id="discordStep">
+          <legend><span class="step">8</span><h2>Share on Discord?</h2></legend>
+          <div class="field" data-f="discord">
+            <span class="lbl" id="discordQ">Do you want to post this on Heirloom's Discord?</span>
+            <div class="photo-modes rsvp-modes yn" role="radiogroup" aria-labelledby="discordQ">
+              <div class="mode"><input type="radio" name="discordShare" id="d-no" value="no" checked><label for="d-no">No, don't post it</label></div>
+              <div class="mode"><input type="radio" name="discordShare" id="d-yes" value="yes"><label for="d-yes">Yes, post it</label></div>
+            </div>
+            <div id="discordPick" hidden style="margin-top:14px">
+              <span class="lbl" id="channelsLbl">Which channel should it go to? <span class="opt">(pick one or more)</span></span>
+              <div class="type-chips" id="channels" role="group" aria-labelledby="channelsLbl"></div>
+            </div>
+            <div class="err">Pick at least one channel, or choose "No, don't post it."</div>
+            <p class="hint" id="discordHint">It'll be on the calendar and website either way.</p>
+          </div>
+        </fieldset>
+      </div>
+
+      <aside class="preview-col">
+        <span class="label">Preview</span>
+        <div id="preview"></div>
+        <div class="submit-row">
+          <div class="form-error" id="formError" role="alert"></div>
+          <button type="submit" class="btn btn-primary" id="submitBtn">Send it in</button>
+          <p class="hint" id="submitHint" style="text-align:center;margin:0">We'll email you when it's on the calendar.</p>
+          <div class="cancel-area" id="cancelArea" hidden>
+            <button type="button" class="link-btn" id="cancelBtn">Cancel this event</button>
+            <div class="cancel-confirm" id="cancelConfirm" hidden>
+              <p>Cancel <b id="cancelName"></b>? It comes off the calendar, and anyone who RSVP'd gets an email.</p>
+              <div class="cancel-btns">
+                <button type="button" class="btn btn-primary btn-sm" id="cancelYes">Yes, cancel it</button>
+                <button type="button" class="btn btn-outline btn-sm" id="cancelNo">Keep it</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </form>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-small" style="border:0;margin:0;padding:0">
+        <p><img src="images/logo-wordmark-white.svg" alt="Heirloom East Bay" style="width:170px;margin-bottom:12px"></p>
+        <p id="footLine"></p>
+      </div>
+    </div>
+  </footer>
+
+<script src="config.js?v=20261116a"></script>
+<script src="common.js?v=20261116a"></script>
+<script src="nav.js?v=20261116a"></script>
+<script src="flyer.js?v=20261116a"></script>
+<script src="submit.js?v=20261116a"></script>
+</body>
+</html>
